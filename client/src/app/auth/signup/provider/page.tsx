@@ -351,7 +351,7 @@ export default function ProviderSignup() {
                   </label>
                   <input
                     type="text"
-                    name="representativeFirstName"
+                    name="firstName"
                     required
                     value={formData.firstName}
                     onChange={handleChange}
@@ -364,7 +364,7 @@ export default function ProviderSignup() {
                   </label>
                   <input
                     type="text"
-                    name="representativeLastName"
+                    name="lastName"
                     required
                     value={formData.lastName}
                     onChange={handleChange}
@@ -378,7 +378,7 @@ export default function ProviderSignup() {
                 </label>
                 <input
                   type="email"
-                  name="representativeEmail"
+                  name="email"
                   required
                   value={formData.email}
                   onChange={handleChange}
@@ -391,7 +391,7 @@ export default function ProviderSignup() {
                 </label>
                 <input
                   type="tel"
-                  name="representativeMobile"
+                  name="mobile"
                   required
                   value={formData.mobile}
                   onChange={handleChange}
