@@ -20,8 +20,7 @@ const envSchema = z.object({
     .string()
     .default("8080")
     .transform((str) => parseInt(str, 10)),
-
-  DEV_MONGODB_CONNECTION_URI: z.string().describe("DEV MongoDB URL"),
+  DATABASE_URL: z.string().describe("Database connection URL"),
 });
 
 const envVars = envSchema.parse(process.env);
@@ -29,8 +28,7 @@ const envVars = envSchema.parse(process.env);
 const config = {
   NODE_ENV: envVars.NODE_ENV,
   PORT: envVars.PORT,
-
-  DEV_MONGODB_CONNECTION_URI: envVars.DEV_MONGODB_CONNECTION_URI,
+  DATABASE_URL: envVars.DATABASE_URL,
 };
 
 export default config;

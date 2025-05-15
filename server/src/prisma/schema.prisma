@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id           String   @id @default(uuid())
+    email        String   @unique
+    password     String
+    role         Role     @default(USER)
+    firstName    String
+    lastName     String
+    fullName     String
+    mobileNumber String
+    streetNumber String
+    streetName   String
+    city         String
+    state        String
+    postCode     String
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    tasks        Task[]
+}
+
+model Provider {
+    id                String       @id @default(uuid())
+    email             String       @unique
+    password          String
+    role              Role         @default(PROVIDER)
+    providerType      ProviderType
+    firstName         String
+    lastName          String
+    fullName          String
+    companyName       String?
+    businessTaxNumber String?      @db.Char(10)
+    mobileNumber      String
+    streetNumber      String
+    streetName        String
+    city              String
+    state             String
+    postCode          String
+    createdAt         DateTime     @default(now())
+    updatedAt         DateTime     @updatedAt
+
+    skills       Skill[]
+    offers       Offer[]
+    TaskProgress TaskProgress[]
+}
+
+model Task {
+    id                String         @id @default(uuid())
+    userId            String
+    category          String
+    name              String
+    description       String
+    status            TaskStatus     @default(OPEN)
+    expectedStartDate DateTime
+    expectedHours     Int
+    hourlyRate        Float
+    currency          String
+    completedAt       DateTime?
+    acceptedAt        DateTime?
+    createdAt         DateTime       @default(now())
+    updatedAt         DateTime       @updatedAt
+    User              User           @relation(fields: [userId], references: [id])
+    Offer             Offer[]
+    progress          TaskProgress[]
+}
+
+model Skill {
+    id         String   @id @default(uuid())
+    providerId String
+    provider   Provider @relation(fields: [providerId], references: [id])
+    category   String
+    experience Int
+    workNature String
+    hourlyRate Float
+    currency   String
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+}
+
+model Offer {
+    id         String      @id @default(uuid())
+    taskId     String
+    task       Task        @relation(fields: [taskId], references: [id])
+    providerId String
+    provider   Provider    @relation(fields: [providerId], references: [id])
+    hourlyRate Float
+    currency   String
+    status     OfferStatus @default(PENDING)
+    createdAt  DateTime    @default(now())
+    updatedAt  DateTime    @updatedAt
+}
+
+model TaskProgress {
+    id          String         @id @default(uuid())
+    taskId      String
+    task        Task           @relation(fields: [taskId], references: [id])
+    providerId  String
+    provider    Provider       @relation(fields: [providerId], references: [id])
+    status      ProgressStatus @default(IN_PROGRESS)
+    description String
+    hoursSpent  Float
+    createdAt   DateTime       @default(now())
+    updatedAt   DateTime       @updatedAt
+}
+
+enum Role {
+    USER
+    PROVIDER
+    ADMIN
+}
+
+enum ProviderType {
+    INDIVIDUAL
+    COMPANY
+}
+
+enum TaskStatus {
+    OPEN
+    IN_PROGRESS
+    COMPLETED
+    ACCEPTED
+}
+
+enum OfferStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+enum ProgressStatus {
+    IN_PROGRESS
+    COMPLETED
+    ON_HOLD
+    CANCELLED
+}
