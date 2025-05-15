@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { validateRequestBody } from "../../utils/validators/requestValidators";
 
 // Common fields for both User and Provider
 const commonFields = {
@@ -12,12 +13,7 @@ const commonFields = {
     ),
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  mobileNumber: z
-    .string()
-    .min(10, "Mobile number must be at least 10 digits")
-    .max(15, "Mobile number must not exceed 15 digits")
-    .regex(/^[0-9+]+$/, "Mobile number must contain only digits and + symbol"),
+  mobileNumber: z.string().max(10, "Mobile number must be at least 10 digits"),
   streetNumber: z.string(),
   streetName: z.string(),
   city: z.string(),
@@ -26,46 +22,15 @@ const commonFields = {
 };
 
 // Provider validation schema
-export const providerSchema = z
-  .object({
-    ...commonFields,
-    role: z.literal("PROVIDER"),
-    providerType: z.enum(["INDIVIDUAL", "COMPANY"]),
-    companyName: z.string().optional(),
-    businessTaxNumber: z
-      .string()
-      .regex(
-        /^[A-Z0-9]{10}$/,
-        "Business Tax Number must be 10 characters long and contain only capital letters and numbers"
-      )
-      .optional(),
-    skills: z
-      .array(z.string())
-      .min(1, "At least one skill must be specified")
-      .optional(),
-    experience: z
-      .number()
-      .min(0, "Experience must be a non-negative number")
-      .optional(),
-    education: z
-      .string()
-      .min(2, "Education must be at least 2 characters")
-      .optional(),
-    certifications: z.array(z.string()).optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.providerType === "INDIVIDUAL") {
-        return data.firstName && data.lastName && data.fullName;
-      } else if (data.providerType === "COMPANY") {
-        return data.companyName && data.businessTaxNumber;
-      }
-      return true;
-    },
-    {
-      message: "Provider type specific fields are required",
-    }
-  );
+export const providerSchema = z.object({
+  ...commonFields,
+  role: z.literal("PROVIDER"),
+  providerType: z.enum(["INDIVIDUAL", "COMPANY"]),
+  companyName: z.string().optional(),
+  businessTaxNumber: z.string().optional(),
+});
 
 // Types for the validated data
 export type ProviderInput = z.infer<typeof providerSchema>;
+
+export const validateProviderCreate = validateRequestBody(providerSchema);

@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-
+import { PrismaClient, Role } from "@prisma/client";
+import { ProviderInput } from "./provider.validator";
 const prisma = new PrismaClient();
 
 export const getProviderById = async (id: string) =>
@@ -19,11 +19,23 @@ export const getProviderByEmail = async (email: string) =>
     },
   });
 
-export const createProvider = async (data: any) => {
+export const createProvider = async (data: ProviderInput) => {
   return prisma.provider.create({
-    data,
-    include: {
-      skills: true,
+    data: {
+      ...data,
+      fullName: `${data.firstName} ${data.lastName}`,
+      providerType: data.providerType,
+      role: Role.PROVIDER,
+      email: data.email,
+      password: data.password,
+      mobileNumber: data.mobileNumber,
+      streetNumber: data.streetNumber,
+      streetName: data.streetName,
+      city: data.city,
+      state: data.state,
+      postCode: data.postCode,
+      companyName: data.companyName || null,
+      businessTaxNumber: data.businessTaxNumber || null,
     },
   });
 };

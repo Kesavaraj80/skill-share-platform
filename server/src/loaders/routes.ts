@@ -12,6 +12,7 @@ import { PrismaClient, User } from "@prisma/client";
 import { signAccessToken } from "../app/user/user.helper";
 import { authentication } from "../middleware/middleware";
 import defineTaskRoutes from "../app/task/task.routes";
+import defineProviderRoutes from "../app/provider/provider.routes";
 const prisma = new PrismaClient();
 
 export default async (expressApp: Application) => {
@@ -78,6 +79,7 @@ export default async (expressApp: Application) => {
 
   defineUserRoutes(expressApp);
   defineTaskRoutes(expressApp);
+  defineProviderRoutes(expressApp);
 
   expressApp.use("/static", express.static("public"));
 

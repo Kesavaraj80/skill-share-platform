@@ -26,18 +26,42 @@ export const authAPI = {
     return response.data;
   },
 
-  signup: async (
-    userType: "individual" | "company",
-    userData: any,
-    userCategory: "provider" | "user"
-  ) => {
-    if (userCategory === "provider") {
-      const response = await api.post("/providers", { userType, ...userData });
-      return response.data;
-    } else {
-      const response = await api.post("/users", { userType, ...userData });
-      return response.data;
-    }
+  signupUser: async (userData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    mobileNumber: string;
+    streetNumber: string;
+    streetName: string;
+    city: string;
+    state: string;
+    postCode: string;
+  }) => {
+    const response = await api.post("/users", userData);
+    return response.data;
+  },
+
+  signupProvider: async (data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    mobileNumber: string;
+
+    streetNumber: string;
+    streetName: string;
+    city: string;
+    state: string;
+    postCode: string;
+    providerType: string;
+    role: "PROVIDER";
+    // company fields
+    companyName?: string;
+    businessTaxNumber?: string;
+  }) => {
+    const response = await api.post("/providers", data);
+    return response.data;
   },
 
   getCurrentUser: async () => {
