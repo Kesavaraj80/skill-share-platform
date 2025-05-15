@@ -31,30 +31,52 @@ export default async (expressApp: Application) => {
       email: string;
       password: string;
     };
+
+    // Try to find user first
     const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
+      where: { email },
     });
-    if (!user) {
+
+    // If user not found, try to find provider
+    const provider = !user
+      ? await prisma.provider.findUnique({
+          where: { email },
+        })
+      : null;
+
+    // If neither user nor provider found
+    if (!user && !provider) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    if (user.password !== password) {
+
+    // Check password for either user or provider
+    const entity = user || provider;
+    if (entity?.password !== password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
     const token = signAccessToken({
-      userId: user.id,
-      email: user.email,
+      userId: entity.id,
+      email: entity.email,
     });
 
     const response = {
       accessToken: token,
       user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        id: entity.id,
+        email: entity.email,
+        role: entity.role,
+        firstName: entity.firstName,
+        lastName: entity.lastName,
+        fullName: entity.fullName,
+        createdAt: entity.createdAt,
+        updatedAt: entity.updatedAt,
+        // Include provider-specific fields if it's a provider
+        ...(entity.role === "PROVIDER" && {
+          providerType: (entity as any).providerType,
+          companyName: (entity as any).companyName,
+          businessTaxNumber: (entity as any).businessTaxNumber,
+        }),
       },
     };
     return res.status(200).json(response);
