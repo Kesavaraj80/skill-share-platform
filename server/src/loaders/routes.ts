@@ -5,14 +5,16 @@ import httpStatus from "http-status";
 
 import cors from "cors";
 
+import { PrismaClient } from "@prisma/client";
+import defineProviderRoutes from "../app/provider/provider.routes";
+import defineSkillRoutes from "../app/skill/skill.routes";
+import defineTaskRoutes from "../app/task/task.routes";
+import { signAccessToken } from "../app/user/user.helper";
 import defineUserRoutes from "../app/user/user.routes";
+import { AccessTokenPayload, authentication } from "../middleware/middleware";
 import AppError from "../utils/exception";
 import { generalLogger } from "../utils/logger";
-import { PrismaClient, User } from "@prisma/client";
-import { signAccessToken } from "../app/user/user.helper";
-import { authentication } from "../middleware/middleware";
-import defineTaskRoutes from "../app/task/task.routes";
-import defineProviderRoutes from "../app/provider/provider.routes";
+
 const prisma = new PrismaClient();
 
 export default async (expressApp: Application) => {
@@ -86,7 +88,8 @@ export default async (expressApp: Application) => {
     "/api/v1/auth/me",
     authentication,
     (_req: Request, res: Response) => {
-      const user = res.locals as User;
+      const user = res.locals as AccessTokenPayload;
+      console.log(user);
       const userData = {
         id: user.id,
         firstName: user.firstName,
@@ -102,6 +105,7 @@ export default async (expressApp: Application) => {
   defineUserRoutes(expressApp);
   defineTaskRoutes(expressApp);
   defineProviderRoutes(expressApp);
+  defineSkillRoutes(expressApp);
 
   expressApp.use("/static", express.static("public"));
 

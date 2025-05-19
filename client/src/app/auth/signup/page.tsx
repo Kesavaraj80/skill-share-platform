@@ -1,32 +1,35 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 
 export default function SignupSelection() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
-          <p className="mt-2 text-gray-600">Join our skill share marketplace</p>
-        </div>
-
-        <div className="space-y-4">
-          <Link
-            href="/auth/signup/user"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            Sign up as a User
-          </Link>
-          <Link
-            href="/auth/signup/provider"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
-            Sign up as a Provider
-          </Link>
-        </div>
-
-        <div className="mt-6 text-center">
+      <Card className="max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="text-3xl text-center">Create Account</CardTitle>
+          <CardDescription className="text-center">
+            Join our skill share marketplace
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button asChild variant="default" className="w-full">
+            <Link href="/auth/signup/user">Sign up as a User</Link>
+          </Button>
+          <Button asChild variant="secondary" className="w-full">
+            <Link href="/auth/signup/provider">Sign up as a Provider</Link>
+          </Button>
+        </CardContent>
+        <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
             <Link
@@ -36,8 +39,8 @@ export default function SignupSelection() {
               Sign in
             </Link>
           </p>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

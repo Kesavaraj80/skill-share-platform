@@ -3,6 +3,7 @@ import AppError from "../../utils/exception";
 import httpStatus from "http-status";
 import { Skill } from "@prisma/client";
 import * as providerRepository from "../provider/provider.repository";
+import { SkillInput } from "./skill.validator";
 
 // Validation functions
 function validateId(id: string | undefined): string {
@@ -27,71 +28,21 @@ function validateProviderId(providerId: string | undefined): string {
   return providerId;
 }
 
-function validateCategory(category: string | undefined): string {
-  if (!category) {
-    throw new AppError(
-      "VALIDATION ERROR",
-      "Category is required",
-      httpStatus.BAD_REQUEST
-    );
-  }
-  return category;
-}
-
-export async function createSkill(data: Partial<Skill>): Promise<Skill> {
+export async function createSkill(
+  data: SkillInput,
+  providerId: string
+): Promise<Skill> {
   // Validate required fields
-  if (
-    !data.category ||
-    !data.experience ||
-    !data.workNature ||
-    !data.hourlyRate ||
-    !data.providerId
-  ) {
-    throw new AppError(
-      "VALIDATION ERROR",
-      "Missing required fields for skill creation",
-      httpStatus.BAD_REQUEST
-    );
-  }
-
-  // Validate provider exists
-  const provider = await providerRepository.getProviderById(
-    data.providerId.toString()
-  );
-  if (!provider) {
-    throw new AppError("NOT FOUND", "Provider not found", httpStatus.NOT_FOUND);
-  }
-
-  // Validate experience is non-negative
-  if (data.experience < 0) {
-    throw new AppError(
-      "VALIDATION ERROR",
-      "Experience cannot be negative",
-      httpStatus.BAD_REQUEST
-    );
-  }
-
-  // Validate hourly rate is positive
-  if (data.hourlyRate <= 0) {
-    throw new AppError(
-      "VALIDATION ERROR",
-      "Hourly rate must be positive",
-      httpStatus.BAD_REQUEST
-    );
-  }
-
-  return skillRepository.create(data);
-}
-
-export async function getSkillById(
-  id: string | undefined
-): Promise<Skill | null> {
-  const validatedId = validateId(id);
-  const skill = await skillRepository.findById(validatedId);
-  if (!skill) {
-    throw new AppError("NOT FOUND", "Skill not found", httpStatus.NOT_FOUND);
-  }
-  return skill;
+  return skillRepository.create({
+    category: data.category,
+    providerId,
+    experience: parseInt(data.experience),
+    workNature: data.workNature,
+    hourlyRate: parseFloat(data.hourlyRate),
+    currency: data.currency,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
 }
 
 export async function getSkillsByProviderId(
@@ -109,12 +60,11 @@ export async function getSkillsByProviderId(
 }
 
 export async function updateSkill(
-  id: string | undefined,
-  data: Partial<Skill>,
+  id: string,
+  data: SkillInput,
   providerId: string
 ): Promise<Skill | null> {
-  const validatedId = validateId(id);
-  const skill = await skillRepository.findById(validatedId);
+  const skill = await skillRepository.findById(id);
   if (!skill) {
     throw new AppError("NOT FOUND", "Skill not found", httpStatus.NOT_FOUND);
   }
@@ -129,7 +79,7 @@ export async function updateSkill(
   }
 
   // Validate experience is non-negative if being updated
-  if (data.experience !== undefined && data.experience < 0) {
+  if (data.experience !== undefined && parseInt(data.experience) < 0) {
     throw new AppError(
       "VALIDATION ERROR",
       "Experience cannot be negative",
@@ -138,7 +88,7 @@ export async function updateSkill(
   }
 
   // Validate hourly rate is positive if being updated
-  if (data.hourlyRate !== undefined && data.hourlyRate <= 0) {
+  if (data.hourlyRate !== undefined && parseFloat(data.hourlyRate) <= 0) {
     throw new AppError(
       "VALIDATION ERROR",
       "Hourly rate must be positive",
@@ -146,7 +96,13 @@ export async function updateSkill(
     );
   }
 
-  return skillRepository.update(validatedId, data);
+  return skillRepository.update(id, {
+    category: data.category,
+    experience: parseInt(data.experience),
+    workNature: data.workNature,
+    hourlyRate: parseFloat(data.hourlyRate),
+    currency: data.currency,
+  });
 }
 
 export async function deleteSkill(
@@ -169,31 +125,4 @@ export async function deleteSkill(
   }
 
   return skillRepository.deleteSkill(validatedId);
-}
-
-export async function getSkillsByCategory(
-  category: string | undefined
-): Promise<Skill[]> {
-  const validatedCategory = validateCategory(category);
-  return skillRepository.findByCategory(validatedCategory);
-}
-
-export async function getSkillsByProviderAndCategory(
-  providerId: string | undefined,
-  category: string | undefined
-): Promise<Skill[]> {
-  const validatedProviderId = validateProviderId(providerId);
-  const validatedCategory = validateCategory(category);
-
-  // Validate provider exists
-  const provider =
-    await providerRepository.getProviderById(validatedProviderId);
-  if (!provider) {
-    throw new AppError("NOT FOUND", "Provider not found", httpStatus.NOT_FOUND);
-  }
-
-  return skillRepository.findByProviderAndCategory(
-    validatedProviderId,
-    validatedCategory
-  );
 }

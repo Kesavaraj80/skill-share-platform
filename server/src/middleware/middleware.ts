@@ -1,10 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
+import { getProviderById } from "../app/provider/provider.repository";
 import { verifyAccessToken } from "../app/user/user.helper";
 import { getUserById } from "../app/user/user.repository";
-import { getProviderById } from "../app/provider/provider.repository";
 import AppError from "../utils/exception";
-import { User, Provider } from "@prisma/client";
+
+export interface AccessTokenPayload {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  fullName: string;
+  role: string;
+}
 
 export const authentication = (
   request: Request,
@@ -28,7 +36,14 @@ export const authentication = (
         // Try to find user first
         const user = await getUserById(payload.userId.toString());
         if (user) {
-          response.locals["user"] = user as User;
+          response.locals = {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            fullName: user.fullName,
+            role: user.role,
+          } as AccessTokenPayload;
           resolve();
           return null;
         }
@@ -36,7 +51,14 @@ export const authentication = (
         // If user not found, try to find provider
         const provider = await getProviderById(payload.userId.toString());
         if (provider) {
-          response.locals["provider"] = provider as Provider;
+          response.locals = {
+            id: provider.id,
+            firstName: provider.firstName,
+            lastName: provider.lastName,
+            email: provider.email,
+            fullName: provider.fullName,
+            role: provider.role,
+          } as AccessTokenPayload;
           resolve();
           return null;
         }

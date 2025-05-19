@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function Home() {
   return (
@@ -12,44 +14,42 @@ export default function Home() {
             Connect with skilled professionals or offer your expertise
           </p>
           <div className="flex gap-4 justify-center">
-            <Link
-              href="/auth/signup"
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Get Started
-            </Link>
-            <Link
-              href="/auth/login"
-              className="bg-white text-blue-600 px-6 py-3 rounded-lg border border-blue-600 hover:bg-blue-50 transition-colors"
-            >
-              Login
-            </Link>
+            <Button asChild variant="default" size="lg">
+              <Link href="/auth/signup">Get Started</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/auth/login">Login</Link>
+            </Button>
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-              For Providers
-            </h2>
-            <ul className="space-y-2 text-gray-700">
-              <li>• Showcase your skills and expertise</li>
-              <li>• Find relevant projects</li>
-              <li>• Set your own rates</li>
-              <li>• Work on your terms</li>
-            </ul>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-              For Users
-            </h2>
-            <ul className="space-y-2 text-gray-700">
-              <li>• Post your requirements</li>
-              <li>• Find skilled professionals</li>
-              <li>• Compare offers</li>
-              <li>• Manage projects easily</li>
-            </ul>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>For Providers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-gray-700">
+                <li>• Showcase your skills and expertise</li>
+                <li>• Find relevant projects</li>
+                <li>• Set your own rates</li>
+                <li>• Work on your terms</li>
+              </ul>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>For Users</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-gray-700">
+                <li>• Post your requirements</li>
+                <li>• Find skilled professionals</li>
+                <li>• Compare offers</li>
+                <li>• Manage projects easily</li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

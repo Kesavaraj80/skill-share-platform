@@ -4,7 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authAPI } from "@/services/api";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 
 export default function UserSignup() {
   const router = useRouter();
@@ -21,12 +31,10 @@ export default function UserSignup() {
     state: "",
     postCode: "",
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     // Validate passwords match
@@ -58,7 +66,6 @@ export default function UserSignup() {
       const errorMessage =
         error.response?.data?.message || "An error occurred during signup";
       toast.error(errorMessage);
-      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -71,190 +78,157 @@ export default function UserSignup() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">User Signup</h2>
-          <p className="mt-2 text-gray-600">Join our skill share marketplace</p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                First Name *
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                required
-                value={formData.firstName}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                required
-                value={formData.lastName}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email *
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Mobile Number *
-            </label>
-            <input
-              type="tel"
-              name="mobile"
-              required
-              value={formData.mobile}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Password *
-              </label>
-              <input
-                type="password"
-                name="password"
-                required
-                minLength={8}
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Confirm Password *
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                required
-                minLength={8}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-              />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">
-              Address Information
-            </h3>
+      <Card className="max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="text-3xl text-center">User Signup</CardTitle>
+          <CardDescription className="text-center">
+            Join our skill share marketplace
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Street Number *
-                </label>
-                <input
+              <div className="space-y-2">
+                <label className="text-sm font-medium">First Name *</label>
+                <Input
                   type="text"
-                  name="streetNumber"
+                  name="firstName"
                   required
-                  value={formData.streetNumber}
+                  value={formData.firstName}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                  placeholder="Enter your first name"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Street Name *
-                </label>
-                <input
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Last Name *</label>
+                <Input
                   type="text"
-                  name="streetName"
+                  name="lastName"
                   required
-                  value={formData.streetName}
+                  value={formData.lastName}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                  placeholder="Enter your last name"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email *</label>
+              <Input
+                type="email"
+                name="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Mobile Number *</label>
+              <Input
+                type="tel"
+                name="mobile"
+                required
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder="Enter your mobile number"
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  City *
-                </label>
-                <input
-                  type="text"
-                  name="city"
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Password *</label>
+                <Input
+                  type="password"
+                  name="password"
                   required
-                  value={formData.city}
+                  minLength={8}
+                  value={formData.password}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                  placeholder="Enter your password"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  State *
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Confirm Password *
                 </label>
-                <input
-                  type="text"
-                  name="state"
+                <Input
+                  type="password"
+                  name="confirmPassword"
                   required
-                  value={formData.state}
+                  minLength={8}
+                  value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                  placeholder="Confirm your password"
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Post Code *
-              </label>
-              <input
-                type="text"
-                name="postCode"
-                required
-                value={formData.postCode}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-              />
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Address Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Street Number *</label>
+                  <Input
+                    type="text"
+                    name="streetNumber"
+                    required
+                    value={formData.streetNumber}
+                    onChange={handleChange}
+                    placeholder="Enter street number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Street Name *</label>
+                  <Input
+                    type="text"
+                    name="streetName"
+                    required
+                    value={formData.streetName}
+                    onChange={handleChange}
+                    placeholder="Enter street name"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">City *</label>
+                  <Input
+                    type="text"
+                    name="city"
+                    required
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Enter city"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">State *</label>
+                  <Input
+                    type="text"
+                    name="state"
+                    required
+                    value={formData.state}
+                    onChange={handleChange}
+                    placeholder="Enter state"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Post Code *</label>
+                <Input
+                  type="text"
+                  name="postCode"
+                  required
+                  value={formData.postCode}
+                  onChange={handleChange}
+                  placeholder="Enter post code"
+                />
+              </div>
             </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creating Account..." : "Sign Up"}
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-6 text-center">
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Creating account..." : "Create Account"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
             <Link
@@ -264,17 +238,8 @@ export default function UserSignup() {
               Sign in
             </Link>
           </p>
-          <p className="mt-2 text-sm text-gray-600">
-            Want to sign up as a provider instead?{" "}
-            <Link
-              href="/auth/signup/provider"
-              className="text-blue-600 hover:text-blue-500"
-            >
-              Sign up as Provider
-            </Link>
-          </p>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

@@ -4,7 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authAPI } from "@/services/api";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type UserType = "INDIVIDUAL" | "COMPANY";
 
@@ -29,12 +46,10 @@ export default function ProviderSignup() {
     phoneNumber: "",
     businessTaxNumber: "",
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     // Validate passwords match
@@ -52,7 +67,6 @@ export default function ProviderSignup() {
         firstName: string;
         lastName: string;
         mobileNumber: string;
-
         streetNumber: string;
         streetName: string;
         city: string;
@@ -104,7 +118,6 @@ export default function ProviderSignup() {
       const errorMessage =
         error.response?.data?.message || "An error occurred during signup";
       toast.error(errorMessage);
-      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -117,406 +130,261 @@ export default function ProviderSignup() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Provider Signup</h2>
-          <p className="mt-2 text-gray-600">Join as a service provider</p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-            {error}
+      <Card className="max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="text-3xl text-center">
+            Provider Signup
+          </CardTitle>
+          <CardDescription className="text-center">
+            Join as a service provider
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-6">
+            <div className="w-full max-w-xs mx-auto space-y-2">
+              <label className="text-sm font-medium">Provider Type</label>
+              <Select
+                value={userType}
+                onValueChange={(value) => setUserType(value as UserType)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select provider type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INDIVIDUAL">
+                    Individual Provider
+                  </SelectItem>
+                  <SelectItem value="COMPANY">Company Provider</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        )}
 
-        <div className="mb-6">
-          <div className="w-full max-w-xs mx-auto">
-            <label
-              htmlFor="providerType"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Provider Type
-            </label>
-            <select
-              id="providerType"
-              value={userType}
-              onChange={(e) => setUserType(e.target.value as UserType)}
-              className="mt-1 block w-full text-gray-800 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"
-            >
-              <option value="INDIVIDUAL" className="text-gray-800">
-                Individual Provider
-              </option>
-              <option value="COMPANY" className="text-gray-800">
-                Company Provider
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {userType === "INDIVIDUAL" ? (
-            <>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    First Name *
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {userType === "INDIVIDUAL" ? (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">First Name *</label>
+                    <Input
+                      type="text"
+                      name="firstName"
+                      required
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Last Name *</label>
+                    <Input
+                      type="text"
+                      name="lastName"
+                      required
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email *</label>
+                  <Input
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Mobile Number *</label>
+                  <Input
+                    type="tel"
+                    name="mobile"
+                    required
+                    value={formData.mobile}
+                    onChange={handleChange}
+                    placeholder="Enter your mobile number"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Company Name *</label>
+                  <Input
+                    type="text"
+                    name="companyName"
+                    required
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    placeholder="Enter company name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Business Tax Number *
                   </label>
-                  <input
+                  <Input
+                    type="text"
+                    name="businessTaxNumber"
+                    required
+                    value={formData.businessTaxNumber}
+                    onChange={handleChange}
+                    placeholder="Enter business tax number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Contact Person First Name *
+                  </label>
+                  <Input
                     type="text"
                     name="firstName"
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                    placeholder="Enter contact person's first name"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Last Name *
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Contact Person Last Name *
                   </label>
-                  <input
+                  <Input
                     type="text"
                     name="lastName"
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                    placeholder="Enter contact person's last name"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Mobile Number *
-                </label>
-                <input
-                  type="tel"
-                  name="mobile"
-                  required
-                  value={formData.mobile}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Email *</label>
+                  <Input
+                    type="email"
+                    name="email"
                     required
-                    minLength={8}
-                    value={formData.password}
+                    value={formData.email}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                    placeholder="Enter company email"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Confirm Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Mobile Number *</label>
+                  <Input
+                    type="tel"
+                    name="mobile"
                     required
-                    minLength={8}
-                    value={formData.confirmPassword}
+                    value={formData.mobile}
                     onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
+                    placeholder="Enter company mobile number"
                   />
                 </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Address Information
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Street Number *
-                    </label>
-                    <input
-                      type="text"
-                      name="streetNumber"
-                      required
-                      value={formData.streetNumber}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Street Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="streetName"
-                      required
-                      value={formData.streetName}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      City *
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      required
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      State *
-                    </label>
-                    <input
-                      type="text"
-                      name="state"
-                      required
-                      value={formData.state}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Post Code *
-                  </label>
-                  <input
-                    type="text"
-                    name="postCode"
-                    required
-                    value={formData.postCode}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                  />
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Company Name *
-                </label>
-                <input
-                  type="text"
-                  name="companyName"
-                  required
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Business Tax Number *
-                </label>
-                <input
-                  type="text"
-                  name="businessTaxNumber"
-                  required
-                  pattern="[A-Z0-9]{10}"
-                  value={formData.businessTaxNumber}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Representative First Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Representative Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Representative Email *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Representative Mobile *
-                </label>
-                <input
-                  type="tel"
-                  name="mobile"
-                  required
-                  value={formData.mobile}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    required
-                    minLength={8}
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Confirm Password *
-                  </label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    required
-                    minLength={8}
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                  />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Company Address
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Street Number *
-                    </label>
-                    <input
-                      type="text"
-                      name="streetNumber"
-                      required
-                      value={formData.streetNumber}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Street Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="streetName"
-                      required
-                      value={formData.streetName}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      City *
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      required
-                      value={formData.city}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      State *
-                    </label>
-                    <input
-                      type="text"
-                      name="state"
-                      required
-                      value={formData.state}
-                      onChange={handleChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Post Code *
-                  </label>
-                  <input
-                    type="text"
-                    name="postCode"
-                    required
-                    value={formData.postCode}
-                    onChange={handleChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-800"
-                  />
-                </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Creating Account..." : "Sign Up"}
-            </button>
-          </div>
-        </form>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Password *</label>
+                <Input
+                  type="password"
+                  name="password"
+                  required
+                  minLength={8}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Confirm Password *
+                </label>
+                <Input
+                  type="password"
+                  name="confirmPassword"
+                  required
+                  minLength={8}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Confirm your password"
+                />
+              </div>
+            </div>
 
-        <div className="mt-6 text-center">
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Address Information</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Street Number *</label>
+                  <Input
+                    type="text"
+                    name="streetNumber"
+                    required
+                    value={formData.streetNumber}
+                    onChange={handleChange}
+                    placeholder="Enter street number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Street Name *</label>
+                  <Input
+                    type="text"
+                    name="streetName"
+                    required
+                    value={formData.streetName}
+                    onChange={handleChange}
+                    placeholder="Enter street name"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">City *</label>
+                  <Input
+                    type="text"
+                    name="city"
+                    required
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Enter city"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">State *</label>
+                  <Input
+                    type="text"
+                    name="state"
+                    required
+                    value={formData.state}
+                    onChange={handleChange}
+                    placeholder="Enter state"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Post Code *</label>
+                <Input
+                  type="text"
+                  name="postCode"
+                  required
+                  value={formData.postCode}
+                  onChange={handleChange}
+                  placeholder="Enter post code"
+                />
+              </div>
+            </div>
+
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Creating account..." : "Create Account"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
             <Link
@@ -526,17 +394,8 @@ export default function ProviderSignup() {
               Sign in
             </Link>
           </p>
-          <p className="mt-2 text-sm text-gray-600">
-            Want to sign up as a user instead?{" "}
-            <Link
-              href="/auth/signup/user"
-              className="text-blue-600 hover:text-blue-500"
-            >
-              Sign up as User
-            </Link>
-          </p>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

@@ -1,7 +1,16 @@
 import express, { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import { authentication } from "../../middleware/middleware";
+import {
+  AccessTokenPayload,
+  authentication,
+} from "../../middleware/middleware";
 import * as skillService from "./skill.services";
+import {
+  CreateSkillRequest,
+  CreateSkillResponse,
+  UpdateSkillRequest,
+  UpdateSkillResponse,
+} from "./skill.types";
 
 export default function defineSkillRoutes(expressApp: express.Application) {
   const skillRouter = express.Router();
@@ -9,29 +18,15 @@ export default function defineSkillRoutes(expressApp: express.Application) {
   skillRouter.post(
     "/",
     authentication,
-    async (request: Request, response: Response, next: NextFunction) => {
+    async (
+      request: CreateSkillRequest,
+      response: CreateSkillResponse,
+      next: NextFunction
+    ) => {
       try {
-        const { user } = response.locals;
-        const skill = await skillService.createSkill({
-          ...request.body,
-          providerId: user._id,
-        });
+        const { id } = response.locals as AccessTokenPayload;
+        const skill = await skillService.createSkill(request.body, id);
         response.status(httpStatus.CREATED).send(skill);
-      } catch (error) {
-        next(error);
-      }
-    }
-  );
-
-  // Get skill by ID
-  skillRouter.get(
-    "/:id",
-    authentication,
-    async (request: Request, response: Response, next: NextFunction) => {
-      try {
-        const id = request.params["id"];
-        const skill = await skillService.getSkillById(id);
-        response.status(httpStatus.OK).send(skill);
       } catch (error) {
         next(error);
       }
@@ -46,7 +41,7 @@ export default function defineSkillRoutes(expressApp: express.Application) {
       try {
         const providerId = request.params["providerId"];
         const skills = await skillService.getSkillsByProviderId(providerId);
-        response.status(httpStatus.OK).send(skills);
+        response.status(httpStatus.OK).send({ data: skills });
       } catch (error) {
         next(error);
       }
@@ -57,7 +52,11 @@ export default function defineSkillRoutes(expressApp: express.Application) {
   skillRouter.put(
     "/:id",
     authentication,
-    async (request: Request, response: Response, next: NextFunction) => {
+    async (
+      request: UpdateSkillRequest,
+      response: UpdateSkillResponse,
+      next: NextFunction
+    ) => {
       try {
         const { user } = response.locals;
         const id = request.params["id"];
@@ -85,40 +84,6 @@ export default function defineSkillRoutes(expressApp: express.Application) {
         response
           .status(httpStatus.OK)
           .send({ message: "Skill deleted successfully" });
-      } catch (error) {
-        next(error);
-      }
-    }
-  );
-
-  // Get skills by category
-  skillRouter.get(
-    "/category/:category",
-    authentication,
-    async (request: Request, response: Response, next: NextFunction) => {
-      try {
-        const category = request.params["category"];
-        const skills = await skillService.getSkillsByCategory(category);
-        response.status(httpStatus.OK).send(skills);
-      } catch (error) {
-        next(error);
-      }
-    }
-  );
-
-  // Get skills by provider and category
-  skillRouter.get(
-    "/provider/:providerId/category/:category",
-    authentication,
-    async (request: Request, response: Response, next: NextFunction) => {
-      try {
-        const providerId = request.params["providerId"];
-        const category = request.params["category"];
-        const skills = await skillService.getSkillsByProviderAndCategory(
-          providerId,
-          category
-        );
-        response.status(httpStatus.OK).send(skills);
       } catch (error) {
         next(error);
       }

@@ -1,7 +1,9 @@
-import { User } from "@prisma/client";
 import express, { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
-import { authentication } from "../../middleware/middleware";
+import {
+  AccessTokenPayload,
+  authentication,
+} from "../../middleware/middleware";
 import { createTask, getTasksByUserId, updateTask } from "./task.services";
 import {
   CreateTaskRequest,
@@ -25,8 +27,8 @@ export default function defineTaskRoutes(expressApp: express.Application) {
       next: NextFunction
     ) => {
       try {
-        const user = response.locals["user"] as User;
-        const task = await createTask(request.body, user.id);
+        const { id } = response.locals as unknown as AccessTokenPayload;
+        const task = await createTask(request.body, id);
         response.status(httpStatus.CREATED).send(task);
       } catch (error) {
         next(error);

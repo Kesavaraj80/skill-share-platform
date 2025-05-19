@@ -4,27 +4,40 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authAPI } from "@/services/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { toast } from "sonner";
+import { useAuth } from "@/context/UserContext";
 
 export default function Login() {
   const router = useRouter();
+  const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
       const response = await authAPI.login(formData.email, formData.password);
       // Store token in localStorage
       localStorage.setItem("token", response.accessToken);
-      // Store user data in localStorage
-      localStorage.setItem("user", JSON.stringify(response.user));
+      // Store user data in context
+      setUser(response.user);
+
+      toast.success("Login successful!");
 
       // Redirect based on user type
       if (response.user.role === "PROVIDER") {
@@ -33,7 +46,7 @@ export default function Login() {
         router.push("/user/dashboard");
       }
     } catch (error: any) {
-      setError(
+      toast.error(
         error.response?.data?.message || "An error occurred during login"
       );
     } finally {
@@ -48,59 +61,45 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-          <p className="mt-2 text-gray-700">Sign in to your account</p>
-        </div>
+      <Card className="max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle className="text-3xl text-center">Welcome Back</CardTitle>
+          <CardDescription className="text-center">
+            Sign in to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email</label>
+              <Input
+                type="email"
+                name="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+              />
+            </div>
 
-        {error && (
-          <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg">
-            {error}
-          </div>
-        )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Password</label>
+              <Input
+                type="password"
+                name="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+              />
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-800">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-800">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" disabled={loading} className="w-full">
               {loading ? "Signing in..." : "Sign In"}
-            </button>
-          </div>
-        </form>
-
-        <div className="mt-6 text-center">
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-700">
             Don't have an account?{" "}
             <Link
@@ -110,8 +109,8 @@ export default function Login() {
               Sign up
             </Link>
           </p>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

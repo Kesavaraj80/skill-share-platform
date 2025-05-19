@@ -1,9 +1,9 @@
 import { Skill } from "@prisma/client";
-import { Request } from "express";
+import { Request, Response } from "express";
 import { SkillInput } from "./skill.validator";
 
 // Base response interface
-interface BaseResponse {
+interface BaseResponse extends Response {
   success: boolean;
   message?: string;
   error?: string;
@@ -11,35 +11,14 @@ interface BaseResponse {
 
 // Create skill request and response types
 export interface CreateSkillRequest extends Request {
-  body: {
-    name: string;
-    description: string;
-    category: string;
-  };
+  body: SkillInput;
 }
 
-export interface CreateSkillResponse extends BaseResponse {
-  data?: Skill;
-}
-
-// Get skill request and response types
-export interface GetSkillRequest extends Request {
-  params: {
-    id: string;
-  };
-}
-
-export interface GetSkillResponse extends BaseResponse {
-  data?: Skill;
-}
-
+export type CreateSkillResponse = Response<unknown>;
 // List skills response type
 export interface ListSkillsResponse extends BaseResponse {
   data?: {
     skills: Skill[];
-    total: number;
-    page: number;
-    limit: number;
   };
 }
 
@@ -48,20 +27,7 @@ export interface UpdateSkillRequest extends Request {
   params: {
     id: string;
   };
-  body: Partial<SkillInput>;
+  body: SkillInput;
 }
 
-export interface UpdateSkillResponse extends BaseResponse {
-  data?: Skill;
-}
-
-// Delete skill request and response types
-export interface DeleteSkillRequest extends Request {
-  params: {
-    id: string;
-  };
-}
-
-export interface DeleteSkillResponse extends BaseResponse {
-  data?: Skill;
-}
+export type UpdateSkillResponse = Response<unknown>;
