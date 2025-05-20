@@ -52,11 +52,13 @@ model Provider {
     skills       Skill[]
     offers       Offer[]
     TaskProgress TaskProgress[]
+    Task         Task[]
 }
 
 model Task {
     id                String         @id @default(uuid())
     userId            String
+    providerId        String?
     category          String
     name              String
     description       String
@@ -72,6 +74,7 @@ model Task {
     User              User           @relation(fields: [userId], references: [id])
     Offer             Offer[]
     progress          TaskProgress[]
+    Provider          Provider?      @relation(fields: [providerId], references: [id])
 }
 
 model Skill {
@@ -127,8 +130,10 @@ enum ProviderType {
 enum TaskStatus {
     OPEN
     IN_PROGRESS
-    COMPLETED
+    PROVIDER_COMPLETED
+    TASK_COMPLETED
     ACCEPTED
+    TASK_REJECTED
 }
 
 enum OfferStatus {

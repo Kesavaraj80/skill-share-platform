@@ -15,9 +15,17 @@ export const taskSchema = z.object({
 // Update task validation schema
 export const updateTaskSchema = taskSchema;
 
+// Task progress validation schema
+export const taskProgressSchema = z.object({
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  hoursSpent: z.number().positive("Hours spent must be positive"),
+});
+
 // Type for the validated task data
 export type TaskInput = z.infer<typeof taskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+export type TaskProgressInput = z.infer<typeof taskProgressSchema>;
 
 export const validateTaskCreate = validateRequestBody(taskSchema);
 export const validateTaskUpdate = validateRequestBody(updateTaskSchema);
+export const validateTaskProgress = validateRequestBody(taskProgressSchema);

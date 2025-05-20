@@ -1,5 +1,9 @@
-import { PrismaClient, TaskStatus } from "@prisma/client";
-import { TaskInput, UpdateTaskInput } from "./task.validator";
+import { PrismaClient, Task, TaskStatus, ProgressStatus } from "@prisma/client";
+import {
+  TaskInput,
+  UpdateTaskInput,
+  TaskProgressInput,
+} from "./task.validator";
 
 const prisma = new PrismaClient();
 
@@ -32,6 +36,23 @@ export async function findById(id: string) {
 export async function findByUserId(userId: string) {
   return prisma.task.findMany({
     where: { userId },
+    include: {
+      Offer: {
+        include: {
+          provider: true,
+        },
+      },
+      progress: true,
+    },
+  });
+}
+
+export async function findByProviderId(providerId: string) {
+  return prisma.task.findMany({
+    where: { providerId },
+    include: {
+      progress: true,
+    },
   });
 }
 
@@ -50,6 +71,13 @@ export async function update(id: string, data: UpdateTaskInput) {
   });
 }
 
+export async function updateTask(id: string, data: Partial<Task>) {
+  return prisma.task.update({
+    where: { id },
+    data,
+  });
+}
+
 export async function deleteTask(id: string) {
   return prisma.task.delete({
     where: { id },
@@ -60,7 +88,7 @@ export async function markAsCompleted(id: string) {
   return prisma.task.update({
     where: { id },
     data: {
-      status: TaskStatus.COMPLETED,
+      status: TaskStatus.TASK_COMPLETED,
       completedAt: new Date(),
     },
   });
@@ -82,6 +110,39 @@ export async function rejectCompletion(id: string) {
     data: {
       status: TaskStatus.IN_PROGRESS,
       completedAt: null,
+    },
+  });
+}
+
+export async function findAll() {
+  return prisma.task.findMany({
+    include: {
+      User: true,
+      Offer: true,
+    },
+  });
+}
+
+export async function createTaskProgress(
+  taskId: string,
+  providerId: string,
+  data: TaskProgressInput
+) {
+  return prisma.taskProgress.create({
+    data: {
+      description: data.description,
+      hoursSpent: data.hoursSpent,
+      status: ProgressStatus.IN_PROGRESS,
+      task: {
+        connect: {
+          id: taskId,
+        },
+      },
+      provider: {
+        connect: {
+          id: providerId,
+        },
+      },
     },
   });
 }

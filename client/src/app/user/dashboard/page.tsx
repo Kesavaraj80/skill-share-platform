@@ -27,6 +27,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useAuth } from "@/context/UserContext";
+import { Progress } from "@/components/ui/progress";
+import { Clock } from "lucide-react";
 
 type Task = {
   id: string;
@@ -37,7 +40,14 @@ type Task = {
   expectedHours: string;
   hourlyRate: string;
   currency: "USD" | "AUD" | "SGD" | "INR";
-  status: "pending" | "accepted" | "rejected" | "in_progress" | "completed";
+  status: "pending" | "accepted" | "rejected" | "IN_PROGRESS" | "COMPLETED";
+  progress?: {
+    id: string;
+    status: string;
+    description: string;
+    hoursSpent: number;
+    createdAt: string;
+  }[];
   offers: Offer[];
 };
 
@@ -53,6 +63,8 @@ type Offer = {
 export default function UserDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showProgressHistory, setShowProgressHistory] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [newTask, setNewTask] = useState<Partial<Task>>({
@@ -66,13 +78,14 @@ export default function UserDashboard() {
   });
   const [loading, setLoading] = useState(false);
 
+  const { user } = useAuth();
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
   const fetchTasks = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
       const response = await taskAPI.getTasksByUser(user.id);
       setTasks(response);
     } catch (error: any) {
@@ -85,7 +98,6 @@ export default function UserDashboard() {
     setLoading(true);
 
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (modalMode === "create") {
         await taskAPI.createTask(newTask);
         setShowAddTask(false);
@@ -167,28 +179,13 @@ export default function UserDashboard() {
     setNewTask((prev) => ({ ...prev, currency: value as Task["currency"] }));
   };
 
-  const handleAcceptOffer = async (taskId: string, offerId: string) => {
-    try {
-      await offerAPI.acceptOffer(offerId);
-      fetchTasks();
-      toast.success("Offer accepted successfully!");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error accepting offer");
-    }
-  };
-
-  const handleRejectOffer = async (taskId: string, offerId: string) => {
-    try {
-      await offerAPI.rejectOffer(offerId);
-      fetchTasks();
-      toast.success("Offer rejected successfully!");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error rejecting offer");
-    }
+  const handleShowProgressHistory = (task: Task) => {
+    setSelectedTask(task);
+    setShowProgressHistory(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className=" bg-gray-50">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="flex justify-between items-center mb-8">
@@ -326,6 +323,48 @@ export default function UserDashboard() {
             </DialogContent>
           </Dialog>
 
+          {/* Progress History Dialog */}
+          <Dialog
+            open={showProgressHistory}
+            onOpenChange={setShowProgressHistory}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Task Progress History</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                {selectedTask?.progress?.map((progress, index) => (
+                  <div key={progress.id} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">
+                        Update {index + 1}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        {new Date(progress.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      {progress.description}
+                    </p>
+                    <div className="flex justify-between text-sm">
+                      <span>Hours Spent: {progress.hoursSpent}</span>
+                      <span>Status: {progress.status}</span>
+                    </div>
+                    {index < (selectedTask.progress?.length || 0) - 1 && (
+                      <div className="h-px bg-gray-200 my-2" />
+                    )}
+                  </div>
+                ))}
+                {(!selectedTask?.progress ||
+                  selectedTask.progress.length === 0) && (
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No progress updates yet
+                  </p>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+
           {/* Tasks Section */}
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-gray-800">Your Tasks</h2>
@@ -338,13 +377,25 @@ export default function UserDashboard() {
                         <CardTitle>{task.name}</CardTitle>
                         <CardDescription>{task.category}</CardDescription>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditTask(task)}
-                      >
-                        Edit
-                      </Button>
+                      <div className="flex gap-2">
+                        {task.status === "IN_PROGRESS" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleShowProgressHistory(task)}
+                            title="View Progress History"
+                          >
+                            <Clock className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditTask(task)}
+                        >
+                          Edit
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>

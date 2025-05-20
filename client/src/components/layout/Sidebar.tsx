@@ -1,8 +1,9 @@
-import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Home, User, Settings } from "lucide-react";
+import { useAuth } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
-
+import { ClipboardListIcon, HandCoinsIcon, Home } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useMemo } from "react";
 interface SidebarProps {
   userType: "provider" | "user";
 }
@@ -11,23 +12,41 @@ export default function Sidebar({ userType }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const navigation = [
-    {
-      name: "Dashboard",
-      href: `/${userType}/dashboard`,
-      icon: Home,
-    },
-    {
-      name: "Profile",
-      href: `/${userType}/profile`,
-      icon: User,
-    },
-    {
-      name: "Settings",
-      href: `/${userType}/settings`,
-      icon: Settings,
-    },
-  ];
+  const navigation = useMemo(
+    () =>
+      [
+        {
+          name: "Dashboard",
+          href: `/${userType}/dashboard`,
+          icon: Home,
+          allowedRoles: ["user", "provider"],
+        },
+        {
+          name: "Your Tasks",
+          href: `/${userType}/tasks`,
+          icon: ClipboardListIcon,
+          allowedRoles: ["provider"],
+        },
+        {
+          name: "All Tasks",
+          href: `/${userType}/tasks/all`,
+          icon: ClipboardListIcon,
+          allowedRoles: ["provider"],
+        },
+        {
+          name: "Offers",
+          href: `/${userType}/offers`,
+          icon: HandCoinsIcon,
+          allowedRoles: ["user"],
+        },
+      ].filter((item) => {
+        if (item.allowedRoles.includes(userType)) {
+          return true;
+        }
+        return false;
+      }),
+    [userType]
+  );
 
   return (
     <div className="flex h-full w-64 flex-col border-r bg-white">

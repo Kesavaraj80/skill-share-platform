@@ -32,6 +32,7 @@ export default function Login() {
 
     try {
       const response = await authAPI.login(formData.email, formData.password);
+      console.log(response);
       // Store token in localStorage
       localStorage.setItem("token", response.accessToken);
       // Store user data in context

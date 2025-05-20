@@ -1,4 +1,5 @@
-import { ISkill, ISkillResponse } from "@/types/provider";
+import { AuthUserT } from "@/context/UserContext";
+import { ISkill, ISkillResponse } from "@/app/types/provider";
 import axios from "axios";
 
 const API_BASE_URL =
@@ -23,12 +24,18 @@ api.interceptors.request.use((config) => {
 // Auth APIs
 export const authAPI = {
   login: async (email: string, password: string) => {
-    const response = await api.post("/auth/login", { email, password });
+    const response = await api.post<{
+      user: AuthUserT;
+      accessToken: string;
+    }>("/auth/login", {
+      email,
+      password,
+    });
     return response.data;
   },
 
   me: async () => {
-    const response = await api.get("/auth/me");
+    const response = await api.get<AuthUserT>("/auth/me");
     return response.data;
   },
 
@@ -111,6 +118,11 @@ export const taskAPI = {
     return response.data;
   },
 
+  getAllTasks: async () => {
+    const response = await api.get("/tasks");
+    return response.data;
+  },
+
   updateTask: async (
     taskId: string,
     taskData: {
@@ -132,15 +144,16 @@ export const taskAPI = {
     return response.data;
   },
 
-  updateTaskProgress: async (taskId: string, description: string) => {
-    const response = await api.post(`/tasks/${taskId}/progress`, {
-      description,
-    });
+  updateTaskProgress: async (
+    taskId: string,
+    data: { description: string; hoursSpent: number }
+  ) => {
+    const response = await api.post(`/tasks/${taskId}/progress`, data);
     return response.data;
   },
 
   markTaskAsCompleted: async (taskId: string) => {
-    const response = await api.post(`/tasks/${taskId}/complete`);
+    const response = await api.post(`/tasks/provider/${taskId}/complete`);
     return response.data;
   },
 
@@ -200,7 +213,11 @@ export const skillAPI = {
 
 // Offer APIs
 export const offerAPI = {
-  createOffer: async (offerData: any) => {
+  createOffer: async (offerData: {
+    taskId: string;
+    hourlyRate: string;
+    currency: "USD" | "AUD" | "SGD" | "INR";
+  }) => {
     const response = await api.post("/offers", offerData);
     return response.data;
   },

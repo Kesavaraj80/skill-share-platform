@@ -13,8 +13,7 @@ interface BaseResponse {
 export interface CreateOfferRequest extends Request {
   body: {
     taskId: string;
-    providerId: string;
-    hourlyRate: number;
+    hourlyRate: string;
     currency: string;
   };
 }

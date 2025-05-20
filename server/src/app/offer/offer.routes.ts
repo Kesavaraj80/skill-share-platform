@@ -1,6 +1,9 @@
 import express, { NextFunction, Response } from "express";
 import httpStatus from "http-status";
-import { authentication } from "../../middleware/middleware";
+import {
+  AccessTokenPayload,
+  authentication,
+} from "../../middleware/middleware";
 import * as offerService from "./offer.services";
 import {
   CreateOfferRequest,
@@ -25,11 +28,13 @@ export default function defineOfferRoutes(expressApp: express.Application) {
       next: NextFunction
     ) => {
       try {
-        const { user } = response.locals;
-        const offer = await offerService.createOffer({
-          ...request.body,
-          providerId: user._id,
-        });
+        const { id } = response.locals as AccessTokenPayload;
+        const offer = await offerService.createOffer(
+          {
+            ...request.body,
+          },
+          id
+        );
         response.status(httpStatus.CREATED).send({
           success: true,
           data: offer,
@@ -70,22 +75,14 @@ export default function defineOfferRoutes(expressApp: express.Application) {
     authentication,
     async (
       request: GetOffersByTaskRequest,
-      response: Response<ListOffersResponse>,
+      response: Response,
       next: NextFunction
     ) => {
       try {
         const taskId = request.params.taskId;
 
         const offers = await offerService.getOffersByTaskId(taskId);
-        response.status(httpStatus.OK).send({
-          success: true,
-          data: {
-            offers,
-            total: offers.length,
-            page: 1,
-            limit: offers.length,
-          },
-        });
+        response.status(httpStatus.OK).send(offers);
       } catch (error) {
         next(error);
       }
@@ -130,10 +127,10 @@ export default function defineOfferRoutes(expressApp: express.Application) {
       next: NextFunction
     ) => {
       try {
-        const { user } = response.locals;
+        const { id: userId } = response.locals as AccessTokenPayload;
         const id = request.params.id;
 
-        const offer = await offerService.acceptOffer(id, user._id.toString());
+        const offer = await offerService.acceptOffer(id, userId);
 
         response.status(httpStatus.OK).send({
           success: true,
@@ -155,10 +152,10 @@ export default function defineOfferRoutes(expressApp: express.Application) {
       next: NextFunction
     ) => {
       try {
-        const { user } = response.locals;
+        const { id: userId } = response.locals as AccessTokenPayload;
         const id = request.params.id;
 
-        const offer = await offerService.rejectOffer(id, user._id.toString());
+        const offer = await offerService.rejectOffer(id, userId);
 
         response.status(httpStatus.OK).send({
           success: true,

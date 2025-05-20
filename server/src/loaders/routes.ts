@@ -14,7 +14,7 @@ import defineUserRoutes from "../app/user/user.routes";
 import { AccessTokenPayload, authentication } from "../middleware/middleware";
 import AppError from "../utils/exception";
 import { generalLogger } from "../utils/logger";
-
+import defineOfferRoutes from "../app/offer/offer.routes";
 const prisma = new PrismaClient();
 
 export default async (expressApp: Application) => {
@@ -89,7 +89,7 @@ export default async (expressApp: Application) => {
     authentication,
     (_req: Request, res: Response) => {
       const user = res.locals as AccessTokenPayload;
-      console.log(user);
+
       const userData = {
         id: user.id,
         firstName: user.firstName,
@@ -106,6 +106,7 @@ export default async (expressApp: Application) => {
   defineTaskRoutes(expressApp);
   defineProviderRoutes(expressApp);
   defineSkillRoutes(expressApp);
+  defineOfferRoutes(expressApp);
 
   expressApp.use("/static", express.static("public"));
 
