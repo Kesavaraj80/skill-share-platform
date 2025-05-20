@@ -94,3 +94,57 @@ export async function markTaskAsProviderCompleted(
     status: TaskStatus.PROVIDER_COMPLETED,
   });
 }
+
+export async function acceptTaskCompletion(taskId: string, userId: string) {
+  const task = await taskRepository.findById(taskId);
+  if (!task) {
+    throw new AppError("NOT FOUND", "Task not found", httpStatus.NOT_FOUND);
+  }
+
+  // Verify that the user owns this task
+  if (task.userId !== userId) {
+    throw new AppError(
+      "FORBIDDEN",
+      "You are not authorized to accept completion of this task",
+      httpStatus.FORBIDDEN
+    );
+  }
+
+  // Verify that the task is in PROVIDER_COMPLETED status
+  if (task.status !== TaskStatus.PROVIDER_COMPLETED) {
+    throw new AppError(
+      "CONFLICT",
+      "Task must be in PROVIDER_COMPLETED status to accept completion",
+      httpStatus.CONFLICT
+    );
+  }
+
+  return taskRepository.markAsCompleted(taskId);
+}
+
+export async function rejectTaskCompletion(taskId: string, userId: string) {
+  const task = await taskRepository.findById(taskId);
+  if (!task) {
+    throw new AppError("NOT FOUND", "Task not found", httpStatus.NOT_FOUND);
+  }
+
+  // Verify that the user owns this task
+  if (task.userId !== userId) {
+    throw new AppError(
+      "FORBIDDEN",
+      "You are not authorized to reject completion of this task",
+      httpStatus.FORBIDDEN
+    );
+  }
+
+  // Verify that the task is in PROVIDER_COMPLETED status
+  if (task.status !== TaskStatus.PROVIDER_COMPLETED) {
+    throw new AppError(
+      "CONFLICT",
+      "Task must be in PROVIDER_COMPLETED status to reject completion",
+      httpStatus.CONFLICT
+    );
+  }
+
+  return taskRepository.rejectCompletion(taskId);
+}

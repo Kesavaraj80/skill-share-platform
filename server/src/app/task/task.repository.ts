@@ -94,22 +94,11 @@ export async function markAsCompleted(id: string) {
   });
 }
 
-export async function acceptCompletion(id: string) {
-  return prisma.task.update({
-    where: { id },
-    data: {
-      status: TaskStatus.ACCEPTED,
-      acceptedAt: new Date(),
-    },
-  });
-}
-
 export async function rejectCompletion(id: string) {
   return prisma.task.update({
     where: { id },
     data: {
       status: TaskStatus.IN_PROGRESS,
-      completedAt: null,
     },
   });
 }

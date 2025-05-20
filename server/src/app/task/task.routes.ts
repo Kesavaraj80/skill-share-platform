@@ -12,6 +12,8 @@ import {
   markTaskAsProviderCompleted,
   updateTask,
   updateTaskProgress,
+  acceptTaskCompletion,
+  rejectTaskCompletion,
 } from "./task.services";
 import {
   CreateTaskRequest,
@@ -170,6 +172,66 @@ export default function defineTaskRoutes(expressApp: express.Application) {
           );
         }
         const task = await markTaskAsProviderCompleted(taskId, providerId);
+        response.status(httpStatus.OK).send(task);
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  // Accept task completion
+  taskRouter.post(
+    "/:taskId/accept",
+    authentication,
+    async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { id: userId } = response.locals as unknown as AccessTokenPayload;
+        if (!userId) {
+          throw new AppError(
+            "User ID not found in token",
+            "User ID not found in token",
+            httpStatus.NOT_FOUND
+          );
+        }
+        const taskId = request.params["taskId"];
+        if (!taskId) {
+          throw new AppError(
+            "Task ID not found in request",
+            "Task ID not found in request",
+            httpStatus.BAD_REQUEST
+          );
+        }
+        const task = await acceptTaskCompletion(taskId, userId);
+        response.status(httpStatus.OK).send(task);
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+  // Reject task completion
+  taskRouter.post(
+    "/:taskId/reject",
+    authentication,
+    async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { id: userId } = response.locals as unknown as AccessTokenPayload;
+        if (!userId) {
+          throw new AppError(
+            "User ID not found in token",
+            "User ID not found in token",
+            httpStatus.NOT_FOUND
+          );
+        }
+        const taskId = request.params["taskId"];
+        if (!taskId) {
+          throw new AppError(
+            "Task ID not found in request",
+            "Task ID not found in request",
+            httpStatus.BAD_REQUEST
+          );
+        }
+        const task = await rejectTaskCompletion(taskId, userId);
         response.status(httpStatus.OK).send(task);
       } catch (error) {
         next(error);

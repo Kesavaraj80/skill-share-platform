@@ -1,24 +1,7 @@
 "use client";
 
-import { offerAPI, taskAPI } from "@/services/api";
-import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import {
   Card,
   CardContent,
@@ -26,10 +9,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/UserContext";
-import { Progress } from "@/components/ui/progress";
-import { Clock } from "lucide-react";
+import { taskAPI } from "@/services/api";
+import { CheckCircle2, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Task = {
   id: string;
@@ -40,7 +40,13 @@ type Task = {
   expectedHours: string;
   hourlyRate: string;
   currency: "USD" | "AUD" | "SGD" | "INR";
-  status: "pending" | "accepted" | "rejected" | "IN_PROGRESS" | "COMPLETED";
+  status:
+    | "OPEN"
+    | "ACCEPTED"
+    | "TASK_REJECTED"
+    | "IN_PROGRESS"
+    | "PROVIDER_COMPLETED"
+    | "TASK_COMPLETED";
   progress?: {
     id: string;
     status: string;
@@ -182,6 +188,30 @@ export default function UserDashboard() {
   const handleShowProgressHistory = (task: Task) => {
     setSelectedTask(task);
     setShowProgressHistory(true);
+  };
+
+  const handleAcceptCompletion = async (taskId: string) => {
+    try {
+      await taskAPI.acceptTaskCompletion(taskId);
+      toast.success("Task completion accepted!");
+      fetchTasks();
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Error accepting task completion"
+      );
+    }
+  };
+
+  const handleRejectCompletion = async (taskId: string) => {
+    try {
+      await taskAPI.rejectTaskCompletion(taskId);
+      toast.success("Task completion rejected. Task is back in progress.");
+      fetchTasks();
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Error rejecting task completion"
+      );
+    }
   };
 
   return (
@@ -378,7 +408,7 @@ export default function UserDashboard() {
                         <CardDescription>{task.category}</CardDescription>
                       </div>
                       <div className="flex gap-2">
-                        {task.status === "IN_PROGRESS" && (
+                        {task.status !== "ACCEPTED" && (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -388,21 +418,49 @@ export default function UserDashboard() {
                             <Clock className="h-4 w-4" />
                           </Button>
                         )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditTask(task)}
-                        >
-                          Edit
-                        </Button>
+                        {task.status === "OPEN" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditTask(task)}
+                          >
+                            Edit
+                          </Button>
+                        )}
+                        {task.status === "PROVIDER_COMPLETED" && (
+                          <>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleAcceptCompletion(task.id)}
+                            >
+                              Accept
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleRejectCompletion(task.id)}
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <p className="text-sm text-gray-600">
-                        {task.description}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-600">
+                          {task.description}
+                        </p>
+                        {task.status === "TASK_COMPLETED" && (
+                          <Badge variant="success" className="ml-2">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Completed
+                          </Badge>
+                        )}
+                      </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="font-medium">Start Date:</span>{" "}
@@ -418,7 +476,19 @@ export default function UserDashboard() {
                         </div>
                         <div>
                           <span className="font-medium">Status:</span>{" "}
-                          {task.status}
+                          <Badge
+                            variant={
+                              task.status === "TASK_COMPLETED"
+                                ? "success"
+                                : task.status === "PROVIDER_COMPLETED"
+                                ? "warning"
+                                : task.status === "IN_PROGRESS"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {task.status.replace(/_/g, " ")}
+                          </Badge>
                         </div>
                       </div>
                     </div>

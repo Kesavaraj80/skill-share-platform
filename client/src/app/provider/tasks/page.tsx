@@ -16,6 +16,7 @@ import {
 import { taskAPI } from "@/services/api";
 import { toast } from "sonner";
 import { useAuth } from "@/context/UserContext";
+import { Badge } from "@/components/ui/badge";
 
 interface Task {
   id: string;
@@ -141,9 +142,19 @@ export default function ProviderAcceptedTasksPage() {
               <CardHeader className="pb-10">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-base">{task.name}</CardTitle>
-                  <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
-                    {task.status}
-                  </span>
+                  <Badge
+                    variant={
+                      task.status === "TASK_COMPLETED"
+                        ? "success"
+                        : task.status === "PROVIDER_COMPLETED"
+                        ? "warning"
+                        : task.status === "IN_PROGRESS"
+                        ? "default"
+                        : "secondary"
+                    }
+                  >
+                    {task.status.replace(/_/g, " ")}
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="pt-0 space-y-4">
